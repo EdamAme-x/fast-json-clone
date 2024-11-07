@@ -19,7 +19,7 @@ export type JsonValue = number | string | boolean | null | JsonValue[] | { [key:
  *              `Set`, `Buffer`, ... are not allowed.
  * @returns The cloned JSON value.
  */
-export default function cloneJSON(value: JsonValue): JsonValue {
+export default function cloneJSON<V extends JsonValue>(value: V): V {
     if (typeof value !== 'object' || value === null) {
         return value;
     } else if (Array.isArray(value)) {
