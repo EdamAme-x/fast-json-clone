@@ -8,7 +8,26 @@
  * @module
  */
 
-export type JsonValue = number | string | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+export type JsonPrimitive = number | string | boolean | null;
+export type JsonArray = JsonValue[];
+export type JsonObject = { [key: string]: JsonValue };
+
+export type JsonValue = JsonPrimitive | JsonArray | JsonObject;
+
+function _cloneJSON(value: JsonValue): JsonValue {
+    if (typeof value !== 'object' || value === null) {
+        return value;
+    } else if (Array.isArray(value)) {
+        return value.map(e => (typeof e !== 'object' || e === null ? e : cloneJSON(e)));
+    } else {
+        const ret: JsonObject = {};
+        for (const k in value) {
+            const v = value[k];
+            ret[k] = typeof v !== 'object' || v === null ? v : cloneJSON(v);
+        }
+        return ret;
+    }
+}
 
 /**
  * This function clones the given JSON value.
@@ -19,17 +38,7 @@ export type JsonValue = number | string | boolean | null | JsonValue[] | { [key:
  *              `Set`, `Buffer`, ... are not allowed.
  * @returns The cloned JSON value.
  */
-export default function cloneJSON<V extends JsonValue>(value: V): V {
-    if (typeof value !== 'object' || value === null) {
-        return value;
-    } else if (Array.isArray(value)) {
-        return value.map(e => (typeof e !== 'object' || e === null ? e : cloneJSON(e)));
-    } else {
-        const ret: { [key: string]: JsonValue } = {};
-        for (const k in value) {
-            const v = value[k];
-            ret[k] = typeof v !== 'object' || v === null ? v : cloneJSON(v);
-        }
-        return ret;
-    }
+function cloneJSON<V extends JsonValue>(value: V): V {
+    // note: autoregressive function
+    return _cloneJSON(value) as V
 }
